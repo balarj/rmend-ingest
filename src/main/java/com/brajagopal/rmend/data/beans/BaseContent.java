@@ -1,5 +1,8 @@
 package com.brajagopal.rmend.data.beans;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -15,6 +18,9 @@ public abstract class BaseContent {
                 return contentType.getClassInstance();
             }
         }
+        else if (_value.keySet().containsAll(Arrays.asList("info", "meta"))) { // document information
+            return ContentType.DOCUMENT_INFO.getClassInstance();
+        }
         return null;
     }
 
@@ -22,10 +28,12 @@ public abstract class BaseContent {
     public abstract BaseContent getInstance();
 
     public static enum ContentType {
-        TOPICS("topics", null),
-        SOCIAL_TAGS("socialTag", SocialTag.class),
-        ENTITIES("entities", null),
-        DISCARDED("", null);
+        TOPICS("topics", TopicBean.class),
+        SOCIAL_TAGS("socialTag", SocialTagBean.class),
+        ENTITIES("entities", EntitiesBean.class),
+        RELATIONS("relations", RelationsBean.class),
+        DOCUMENT_INFO("document", DocumentBean.class),
+        DISCARDED(StringUtils.EMPTY, null);
 
         private String name;
         private Class<? extends BaseContent> classInstance;
