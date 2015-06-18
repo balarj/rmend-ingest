@@ -56,13 +56,16 @@ public class ContentProcessor {
         try {
             Map<String, ? extends Object> val = new Gson().fromJson(new FileReader(_file), Map.class);
             if (MapUtils.isNotEmpty(val)) {
-                for (Map.Entry entry : val.entrySet()) {
+                for (Map.Entry<String, ? extends Object> entry : val.entrySet()) {
+                    String key = entry.getKey();
                     if (entry.getValue() instanceof Map) {
                         Map<String, ? extends Object> entityValue = (Map<String, ? extends Object>) entry.getValue();
                         Class<? extends BaseContent> content = BaseContent.find(entityValue);
                         if (content != null) {
                             try {
-                                content.newInstance().getInstance().process(entityValue);
+                                BaseContent beanValue = content.newInstance().getInstance();
+                                beanValue.process(entityValue);
+                                logger.info(key + ": " + beanValue);
                             } catch (InstantiationException e) {
                                 e.printStackTrace();
                             } catch (IllegalAccessException e) {
