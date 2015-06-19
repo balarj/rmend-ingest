@@ -9,11 +9,17 @@ import java.util.Map;
  */
 public class EntitiesBean extends BaseContent {
 
-    private final ContentType contentType = ContentType.ENTITIES;
     private String type;
-    private boolean forEndUserDisplay;
     private String name;
     private double relevance;
+
+    public EntitiesBean() {
+        this(ContentType.ENTITIES);
+    }
+
+    private EntitiesBean(ContentType _contentType) {
+        super(_contentType);
+    }
 
     @Override
     public void process(Map<String, ? extends Object> _value) {
@@ -39,6 +45,7 @@ public class EntitiesBean extends BaseContent {
                 '}';
     }
 
+    @Override
     public ContentType getContentType() {
         return contentType;
     }
@@ -47,7 +54,8 @@ public class EntitiesBean extends BaseContent {
         return type;
     }
 
-    public boolean isForEndUserDisplay() {
+    @Override
+    public Boolean isForEndUserDisplay() {
         return forEndUserDisplay;
     }
 

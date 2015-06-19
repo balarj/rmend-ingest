@@ -9,11 +9,17 @@ import java.util.Map;
  */
 public class RelationsBean extends BaseContent {
 
-    private final ContentType contentType = ContentType.RELATIONS;
     private String type;
-    private boolean forEndUserDisplay;
     private String careerType;
     private String status;
+
+    public RelationsBean() {
+        this(ContentType.RELATIONS);
+    }
+
+    private RelationsBean(ContentType _contentType) {
+        super(_contentType);
+    }
 
     @Override
     public void process(Map<String, ? extends Object> _value) {
@@ -39,6 +45,7 @@ public class RelationsBean extends BaseContent {
                 '}';
     }
 
+    @Override
     public ContentType getContentType() {
         return contentType;
     }
@@ -47,7 +54,8 @@ public class RelationsBean extends BaseContent {
         return type;
     }
 
-    public boolean isForEndUserDisplay() {
+    @Override
+    public Boolean isForEndUserDisplay() {
         return forEndUserDisplay;
     }
 

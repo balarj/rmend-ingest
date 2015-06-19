@@ -11,6 +11,14 @@ import java.util.Map;
 public abstract class BaseContent {
     public static final String KEY_TYPEGROUP = "_typeGroup";
 
+    protected final ContentType contentType;
+    protected boolean forEndUserDisplay;
+    protected String name;
+
+    protected BaseContent(ContentType _contentType) {
+        this.contentType = _contentType;
+    }
+
     public static Class<? extends BaseContent> find(Map<String, ? extends Object> _value) {
         if (_value.containsKey(KEY_TYPEGROUP)) {
             ContentType contentType = ContentType.getInstance((String) _value.get(KEY_TYPEGROUP));
@@ -26,6 +34,8 @@ public abstract class BaseContent {
 
     public abstract void process(Map<String, ? extends Object> _value);
     public abstract BaseContent getInstance();
+    public abstract ContentType getContentType();
+    public abstract Boolean isForEndUserDisplay();
 
     public static enum ContentType {
         TOPICS("topics", TopicBean.class),

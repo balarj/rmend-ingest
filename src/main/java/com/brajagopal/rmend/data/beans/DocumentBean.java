@@ -13,6 +13,14 @@ public class DocumentBean extends BaseContent {
     private String document;
     private String contentMD5Sum;
 
+    public DocumentBean() {
+        this(ContentType.DOCUMENT_INFO);
+    }
+
+    private DocumentBean(ContentType _contentType) {
+        super(_contentType);
+    }
+
     @Override
     public void process(Map<String, ? extends Object> _value) {
         Map<String, String> infoValue = ((Map<String, String>)_value.get("info"));
@@ -44,5 +52,15 @@ public class DocumentBean extends BaseContent {
 
     public String getContentMD5Sum() {
         return contentMD5Sum;
+    }
+
+    @Override
+    public ContentType getContentType() {
+        return contentType;
+    }
+
+    @Override
+    public Boolean isForEndUserDisplay() {
+        return null;
     }
 }

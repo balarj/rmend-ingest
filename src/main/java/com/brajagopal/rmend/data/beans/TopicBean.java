@@ -9,10 +9,16 @@ import java.util.Map;
  */
 public class TopicBean extends BaseContent {
 
-    private final ContentType contentType = ContentType.TOPICS;
-    private boolean forEndUserDisplay;
     private String name;
     private double score;
+
+    public TopicBean() {
+        this(ContentType.TOPICS);
+    }
+
+    private TopicBean(ContentType _contentType) {
+        super(_contentType);
+    }
 
     @Override
     public void process(Map<String, ? extends Object> _value) {
@@ -36,11 +42,13 @@ public class TopicBean extends BaseContent {
                 '}';
     }
 
+    @Override
     public ContentType getContentType() {
         return contentType;
     }
 
-    public boolean isForEndUserDisplay() {
+    @Override
+    public Boolean isForEndUserDisplay() {
         return forEndUserDisplay;
     }
 
