@@ -42,6 +42,7 @@ public class ContentProcessor {
         if (_file.isFile()) {
             if (_file.getName().endsWith(".json")) {
                 processFile(_file);
+                logger.info("----------------------------------------------------------------------");
             }
         } else if (_file.isDirectory()) {
             for (File fileFromPath : _file.listFiles()) {
@@ -65,7 +66,9 @@ public class ContentProcessor {
                             try {
                                 BaseContent beanValue = content.newInstance().getInstance();
                                 beanValue.process(entityValue);
-                                logger.info(key + ": " + beanValue);
+                                if (beanValue.isForEndUserDisplay() == null || beanValue.isForEndUserDisplay()) {
+                                    logger.info(key + ": " + beanValue);
+                                }
                             } catch (InstantiationException e) {
                                 e.printStackTrace();
                             } catch (IllegalAccessException e) {
