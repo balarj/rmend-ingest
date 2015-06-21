@@ -2,6 +2,7 @@ package com.brajagopal.rmend.data.beans;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -12,6 +13,7 @@ public class DocumentBean extends BaseContent {
     private String docId;
     private String document;
     private String contentMD5Sum;
+    private Collection<BaseContent> contentBeans;
 
     public DocumentBean() {
         this(ContentType.DOCUMENT_INFO);
@@ -36,9 +38,10 @@ public class DocumentBean extends BaseContent {
 
     @Override
     public String toString() {
-        return "DocumentBean {" +
-                "docId='" + docId + '\'' +
-                ", contentMD5Sum='" + contentMD5Sum + '\'' +
+        return "DocumentBean{" +
+                "docId='" + getDocId() + '\'' +
+                ", contentMD5Sum='" + getContentMD5Sum() + '\'' +
+                ", contentBeans=" + getContentBeans() +
                 '}';
     }
 
@@ -55,12 +58,19 @@ public class DocumentBean extends BaseContent {
     }
 
     @Override
-    public ContentType getContentType() {
-        return contentType;
-    }
-
-    @Override
     public Boolean isForEndUserDisplay() {
         return null;
+    }
+
+    public Collection<BaseContent> getContentBeans() {
+        return contentBeans;
+    }
+
+    public void setContentBeans(Collection<BaseContent> contentBeans) {
+        this.contentBeans = contentBeans;
+    }
+
+    public int getEntitySize() {
+        return this.getContentBeans().size();
     }
 }
