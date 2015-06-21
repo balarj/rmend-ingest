@@ -9,7 +9,6 @@ import java.util.Map;
  */
 public class RelationsBean extends BaseContent {
 
-    private String type;
     private String careerType;
     private String status;
 
@@ -37,26 +36,17 @@ public class RelationsBean extends BaseContent {
     @Override
     public String toString() {
         return "RelationsBean {" +
-                "contentType=" + contentType +
-                ", type='" + type + '\'' +
-                ", forEndUserDisplay=" + forEndUserDisplay +
-                ", careerType='" + careerType + '\'' +
-                ", status='" + status + '\'' +
+                "contentType=" + getContentType() +
+                ", type='" + getType() + '\'' +
+                ", forEndUserDisplay=" + isForEndUserDisplay() +
+                ", careerType='" + getCareerType() + '\'' +
+                ", status='" + getStatus() + '\'' +
                 '}';
     }
 
     @Override
-    public ContentType getContentType() {
-        return contentType;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    @Override
-    public Boolean isForEndUserDisplay() {
-        return forEndUserDisplay;
+    public String getName() {
+        throw new UnsupportedOperationException("getName() not supported by "+getClass());
     }
 
     public String getCareerType() {

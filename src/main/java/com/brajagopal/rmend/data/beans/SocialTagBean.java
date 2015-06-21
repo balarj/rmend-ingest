@@ -9,7 +9,6 @@ import java.util.Map;
  */
 public class SocialTagBean extends BaseContent {
 
-    private String name;
     private int importance;
 
     public SocialTagBean() {
@@ -35,25 +34,16 @@ public class SocialTagBean extends BaseContent {
     @Override
     public String toString() {
         return "SocialTag {" +
-                "contentType=" + contentType +
-                ", forEndUserDisplay=" + forEndUserDisplay +
-                ", name='" + name + '\'' +
-                ", importance=" + importance +
+                "contentType=" + getContentType() +
+                ", forEndUserDisplay=" + isForEndUserDisplay() +
+                ", name='" + getName() + '\'' +
+                ", importance=" + getImportance() +
                 '}';
     }
 
     @Override
-    public ContentType getContentType() {
-        return contentType;
-    }
-
-    @Override
-    public Boolean isForEndUserDisplay() {
-        return forEndUserDisplay;
-    }
-
-    public String getName() {
-        return name;
+    public String getType() {
+        throw new UnsupportedOperationException("getType() not supported by "+getClass());
     }
 
     public int getImportance() {

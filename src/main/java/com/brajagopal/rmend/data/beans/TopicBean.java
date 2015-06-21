@@ -9,7 +9,6 @@ import java.util.Map;
  */
 public class TopicBean extends BaseContent {
 
-    private String name;
     private double score;
 
     public TopicBean() {
@@ -35,28 +34,19 @@ public class TopicBean extends BaseContent {
     @Override
     public String toString() {
         return "TopicBean {" +
-                "contentType=" + contentType +
-                ", forEndUserDisplay=" + forEndUserDisplay +
-                ", name='" + name + '\'' +
-                ", score=" + score +
+                "contentType=" + getContentType() +
+                ", forEndUserDisplay=" + isForEndUserDisplay() +
+                ", name='" + getName() + '\'' +
+                ", score=" + getScore() +
                 '}';
-    }
-
-    @Override
-    public ContentType getContentType() {
-        return contentType;
-    }
-
-    @Override
-    public Boolean isForEndUserDisplay() {
-        return forEndUserDisplay;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public double getScore() {
         return score;
+    }
+
+    @Override
+    public String getType() {
+        throw new UnsupportedOperationException("getType() not supported by "+getClass());
     }
 }

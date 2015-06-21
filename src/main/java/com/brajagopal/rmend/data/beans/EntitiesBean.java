@@ -9,8 +9,6 @@ import java.util.Map;
  */
 public class EntitiesBean extends BaseContent {
 
-    private String type;
-    private String name;
     private double relevance;
 
     public EntitiesBean() {
@@ -37,30 +35,12 @@ public class EntitiesBean extends BaseContent {
     @Override
     public String toString() {
         return "EntitiesBean {" +
-                "contentType=" + contentType +
-                ", type='" + type + '\'' +
-                ", forEndUserDisplay=" + forEndUserDisplay +
-                ", name='" + name + '\'' +
-                ", relevance=" + relevance +
+                "contentType=" + getContentType() +
+                ", type='" + getType() + '\'' +
+                ", forEndUserDisplay=" + isForEndUserDisplay() +
+                ", name='" + getName() + '\'' +
+                ", relevance=" + getRelevance() +
                 '}';
-    }
-
-    @Override
-    public ContentType getContentType() {
-        return contentType;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    @Override
-    public Boolean isForEndUserDisplay() {
-        return forEndUserDisplay;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public double getRelevance() {
