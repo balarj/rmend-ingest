@@ -14,6 +14,7 @@ public abstract class BaseContent {
     protected final ContentType contentType;
     protected boolean forEndUserDisplay;
     protected String name;
+    protected String type;
 
     protected BaseContent(ContentType _contentType) {
         this.contentType = _contentType;
@@ -34,8 +35,23 @@ public abstract class BaseContent {
 
     public abstract void process(Map<String, ? extends Object> _value);
     public abstract BaseContent getInstance();
-    public abstract ContentType getContentType();
-    public abstract Boolean isForEndUserDisplay();
+
+    public ContentType getContentType() {
+        return contentType;
+    }
+
+    public Boolean isForEndUserDisplay() {
+        return forEndUserDisplay;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getName() {
+        String retVal = StringUtils.replace(name.toLowerCase(), " ", "_");
+        return retVal;
+    }
 
     public static enum ContentType {
         TOPICS("topics", TopicBean.class),
