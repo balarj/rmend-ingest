@@ -1,6 +1,8 @@
 package com.brajagopal.rmend.data;
 
 import com.brajagopal.rmend.data.beans.BaseContent;
+import com.brajagopal.rmend.data.beans.DocumentBean;
+import com.brajagopal.rmend.data.beans.RelationsBean;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.log4j.Logger;
@@ -8,6 +10,9 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -17,6 +22,7 @@ public class ContentProcessor {
 
     private static Logger logger = Logger.getLogger(ContentProcessor.class);
     private int fileCnt;
+    private ContentDictionary dictionary = new ContentDictionary();
 
     public static void main(String[] args) {
         ContentProcessor processor = new ContentProcessor();
@@ -36,6 +42,7 @@ public class ContentProcessor {
             e.printStackTrace();
         }
         logger.info("File count: " + processor.getFileCnt());
+        logger.info(processor.dictionary);
     }
 
     public void processPath(File _file) {
@@ -55,6 +62,8 @@ public class ContentProcessor {
 
     protected void processFile(File _file) {
         try {
+            Collection<BaseContent> contentBeans = new ArrayList<BaseContent>();
+            DocumentBean documentBean = null;
             Map<String, ? extends Object> val = new Gson().fromJson(new FileReader(_file), Map.class);
             if (MapUtils.isNotEmpty(val)) {
                 for (Map.Entry<String, ? extends Object> entry : val.entrySet()) {
@@ -66,9 +75,14 @@ public class ContentProcessor {
                             try {
                                 BaseContent beanValue = content.newInstance().getInstance();
                                 beanValue.process(entityValue);
-                                if (beanValue.isForEndUserDisplay() == null || beanValue.isForEndUserDisplay()) {
-                                    logger.info(key + ": " + beanValue);
+
+                                if (beanValue instanceof DocumentBean) {
+                                    documentBean = (DocumentBean) beanValue;
                                 }
+                                else {
+                                    contentBeans.add(beanValue);
+                                }
+
                             } catch (InstantiationException e) {
                                 e.printStackTrace();
                             } catch (IllegalAccessException e) {
@@ -80,13 +94,36 @@ public class ContentProcessor {
                         }
                     }
                 }
+                documentBean.setContentBeans(Collections.unmodifiableCollection(contentBeans));
+                for (BaseContent bean : documentBean.getContentBeans()) {
+
+                    // Skip RelationsBean
+                    if (bean instanceof RelationsBean) {
+                        continue;
+                    }
+
+                    String beanType = "";
+                    String beanName = "";
+
+                    try {
+                        beanType = bean.getType();
+                    }
+                    catch (UnsupportedOperationException e) {}
+                    try {
+                        beanName = bean.getName();
+                    }
+                    catch (UnsupportedOperationException e) {}
+
+                    dictionary.putData(bean.getContentType(), beanType, beanName, documentBean.getDocId());
+                }
+                logger.info(documentBean);
             }
-            logger.info(_file.getPath() + " : " + val.size());
+            logger.info(_file.getPath() + " : " + documentBean.getEntitySize());
             fileCnt++;
 
         }
         catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 
