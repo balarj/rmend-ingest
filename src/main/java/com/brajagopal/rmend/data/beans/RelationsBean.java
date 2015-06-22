@@ -34,6 +34,11 @@ public class RelationsBean extends BaseContent {
     }
 
     @Override
+    public double getScore() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String toString() {
         return "RelationsBean {" +
                 "contentType=" + getContentType() +

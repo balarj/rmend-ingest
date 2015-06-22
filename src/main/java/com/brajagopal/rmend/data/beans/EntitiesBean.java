@@ -39,11 +39,16 @@ public class EntitiesBean extends BaseContent {
                 ", type='" + getType() + '\'' +
                 ", forEndUserDisplay=" + isForEndUserDisplay() +
                 ", name='" + getName() + '\'' +
-                ", relevance=" + getRelevance() +
+                ", score=" + getScore() +
                 '}';
     }
 
     public double getRelevance() {
         return relevance;
+    }
+
+    @Override
+    public double getScore() {
+        return getRelevance();
     }
 }

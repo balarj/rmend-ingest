@@ -32,12 +32,17 @@ public class SocialTagBean extends BaseContent {
     }
 
     @Override
+    public double getScore() {
+        return getImportance();
+    }
+
+    @Override
     public String toString() {
         return "SocialTag {" +
                 "contentType=" + getContentType() +
                 ", forEndUserDisplay=" + isForEndUserDisplay() +
                 ", name='" + getName() + '\'' +
-                ", importance=" + getImportance() +
+                ", score=" + getScore() +
                 '}';
     }
 
@@ -49,4 +54,5 @@ public class SocialTagBean extends BaseContent {
     public int getImportance() {
         return importance;
     }
+
 }

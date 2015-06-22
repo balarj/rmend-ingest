@@ -35,6 +35,7 @@ public abstract class BaseContent {
 
     public abstract void process(Map<String, ? extends Object> _value);
     public abstract BaseContent getInstance();
+    public abstract double getScore();
 
     public ContentType getContentType() {
         return contentType;
