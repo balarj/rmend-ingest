@@ -2,8 +2,7 @@ package com.brajagopal.rmend.data;
 
 import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.beans.DocumentBean;
-import com.brajagopal.rmend.data.beans.RelationsBean;
-import com.google.appengine.repackaged.com.google.gson.Gson;
+import com.google.gson.Gson;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.log4j.Logger;
 
@@ -23,6 +22,7 @@ public class ContentProcessor {
     private static Logger logger = Logger.getLogger(ContentProcessor.class);
     private int fileCnt;
     private ContentDictionary dictionary = new ContentDictionary();
+    private int maxCnt = 150;
 
     public static void main(String[] args) {
         ContentProcessor processor = new ContentProcessor();
@@ -95,27 +95,7 @@ public class ContentProcessor {
                     }
                 }
                 documentBean.setContentBeans(Collections.unmodifiableCollection(contentBeans));
-                for (BaseContent bean : documentBean.getContentBeans()) {
-
-                    // Skip RelationsBean
-                    if (bean instanceof RelationsBean) {
-                        continue;
-                    }
-
-                    String beanType = "";
-                    String beanName = "";
-
-                    try {
-                        beanType = bean.getType();
-                    }
-                    catch (UnsupportedOperationException e) {}
-                    try {
-                        beanName = bean.getName();
-                    }
-                    catch (UnsupportedOperationException e) {}
-
-                    dictionary.putData(bean.getContentType(), beanType, beanName, documentBean.getDocId());
-                }
+                dictionary.putData(documentBean);
                 logger.info(documentBean);
             }
             logger.info(_file.getPath() + " : " + documentBean.getEntitySize());
