@@ -1,7 +1,10 @@
 package com.brajagopal.rmend.data;
 
+import com.brajagopal.rmend.dao.GCloudDao;
+import com.brajagopal.rmend.dao.IRMendDao;
 import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.beans.DocumentBean;
+import com.google.api.services.datastore.client.DatastoreException;
 import com.google.gson.Gson;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.log4j.Logger;
@@ -9,6 +12,7 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,9 +26,14 @@ public class ContentProcessor {
     private static Logger logger = Logger.getLogger(ContentProcessor.class);
     private int fileCnt;
     private ContentDictionary dictionary = new ContentDictionary();
+    private IRMendDao dao = GCloudDao.getLocalInstance();
     private int maxCnt = 150;
 
-    public static void main(String[] args) {
+    private ContentProcessor() throws GeneralSecurityException, IOException {
+        dao = GCloudDao.getLocalInstance();
+    }
+
+    public static void main(String[] args) throws GeneralSecurityException, IOException, DatastoreException {
         ContentProcessor processor = new ContentProcessor();
         try {
             if (args.length > 0) {
@@ -42,7 +51,8 @@ public class ContentProcessor {
             e.printStackTrace();
         }
         logger.info("File count: " + processor.getFileCnt());
-        logger.info(processor.dictionary);
+        processor.dao.getDocument(1435057898958l);
+        //logger.info(processor.dictionary);
     }
 
     public void processPath(File _file) {
@@ -99,10 +109,13 @@ public class ContentProcessor {
                 logger.info(documentBean);
             }
             logger.info(_file.getPath() + " : " + documentBean.getEntitySize());
+            dao.putDocument(documentBean);
             fileCnt++;
 
         }
         catch (IOException e) {
+            logger.error(e);
+        } catch (DatastoreException e) {
             logger.error(e);
         }
     }
