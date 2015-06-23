@@ -1,8 +1,12 @@
 package com.brajagopal.rmend.data.beans;
 
+import com.google.common.collect.HashMultimap;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
@@ -16,7 +20,8 @@ public class DocumentBean extends BaseContent {
     private String title;
     private String document;
     private String contentMD5Sum;
-    private Collection<BaseContent> contentBeans;
+    private Collection<String> topics;
+    private HashMultimap<BaseContent.ContentType, BaseContent> contentBeans;
 
     public DocumentBean() {
         this(ContentType.DOCUMENT_INFO);
@@ -39,12 +44,13 @@ public class DocumentBean extends BaseContent {
         }
         else {
             this.title = "";
-            this.document = docBody;
+            this.document = StringUtils.toEncodedString(docBody.getBytes(), Charset.forName("UTF8"));
         }
 
         this.docId = documentId.substring(documentId.lastIndexOf("/") + 1, documentId.length());
         this.contentMD5Sum = DigestUtils.md5Hex(this.document);
         this.documentNumber = System.currentTimeMillis();
+        contentBeans = HashMultimap.create();
     }
 
     @Override
@@ -62,6 +68,7 @@ public class DocumentBean extends BaseContent {
         return "DocumentBean {" +
                 "docId='" + getDocId() + '\'' +
                 ", docTitle='" + getTitle() + '\'' +
+                ", topic='" + getTopic() + '\'' +
                 ", documentNumber='" + getDocumentNumber() + '\'' +
                 ", contentMD5Sum='" + getContentMD5Sum() + '\'' +
                 ", contentBeans=" + getContentBeans() +
@@ -94,11 +101,28 @@ public class DocumentBean extends BaseContent {
     }
 
     public Collection<BaseContent> getContentBeans() {
-        return contentBeans;
+        return contentBeans.values();
     }
 
-    public void setContentBeans(Collection<BaseContent> contentBeans) {
-        this.contentBeans = contentBeans;
+    public Collection<String> getTopic() {
+        return topics;
+    }
+
+    public void setContentBeans(Collection<BaseContent> _contentBeans) {
+        for (BaseContent bean : _contentBeans) {
+            contentBeans.put(bean.getContentType(), bean);
+        }
+
+        Collection<BaseContent> topics = contentBeans.get(ContentType.TOPICS);
+        if (topics.size() > 0) {
+            this.topics = new ArrayList<String>();
+            for (BaseContent topic : topics) {
+                this.topics.add(topic.getName());
+            }
+        }
+        else {
+            this.topics = Arrays.asList("NA");
+        }
     }
 
     public int getEntitySize() {
