@@ -1,9 +1,11 @@
 package com.brajagopal.rmend.data.beans;
 
 import com.google.common.collect.HashMultimap;
+import com.google.gson.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,7 +103,10 @@ public class DocumentBean extends BaseContent {
     }
 
     public Collection<BaseContent> getContentBeans() {
-        return contentBeans.values();
+        if (contentBeans != null) {
+            return contentBeans.values();
+        }
+        return null;
     }
 
     public Collection<String> getTopic() {
@@ -127,5 +132,70 @@ public class DocumentBean extends BaseContent {
 
     public int getEntitySize() {
         return this.getContentBeans().size();
+    }
+
+    public Map<ContentType, Collection<BaseContent>> getContentBeansByType() {
+        return contentBeans.asMap();
+    }
+
+    public static class DocumentSerDe implements JsonSerializer<DocumentBean>, JsonDeserializer<DocumentBean> {
+
+        @Override
+        public JsonElement serialize(final DocumentBean bean, Type type, JsonSerializationContext jsonSerializationContext) {
+            JsonObject root = new JsonObject();
+            root.addProperty("docId", bean.docId);
+            root.addProperty("title", bean.title);
+            root.addProperty("md5sum", bean.contentMD5Sum);
+            root.addProperty("docBody", bean.document);
+            final JsonArray jsonTopicsArray = new JsonArray();
+            for (final String topic : bean.getTopic()) {
+                final JsonPrimitive topicPrimitive = new JsonPrimitive(topic);
+                jsonTopicsArray.add(topicPrimitive);
+            }
+            root.add("topics", jsonTopicsArray);
+            root.addProperty("documentNumber", bean.documentNumber);
+            final JsonObject jsonObject = new JsonObject();
+            for (Map.Entry<ContentType, Collection<BaseContent>> entry : bean.getContentBeansByType().entrySet()) {
+                final JsonArray jsonArray = new JsonArray();
+                for (final BaseContent contentBean : entry.getValue()) {
+                    try {
+                        jsonArray.add(new JsonPrimitive(contentBean.getName()));
+                    }
+                    catch (UnsupportedOperationException e) {}
+                }
+                jsonObject.add(entry.getKey().toString(), jsonArray);
+            }
+            root.add("contentBeans", jsonObject);
+
+            return root;
+        }
+
+        @Override
+        public DocumentBean deserialize(final JsonElement jsonElement,
+                                        final Type type, final JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+
+            DocumentBean bean = new DocumentBean();
+            final JsonObject root = jsonElement.getAsJsonObject();
+
+            final String docId = root.get("docId").getAsString();
+            final String title = root.get("title").getAsString();
+            final String md5sum = root.get("md5sum").getAsString();
+            final Collection<String> topics = new ArrayList<String>();
+            final JsonArray jsonTopicsArray = root.get("topics").getAsJsonArray();
+            for (final JsonElement _jsonElement : jsonTopicsArray) {
+                topics.add(_jsonElement.getAsString());
+            }
+            final long documentNumber = root.get("documentNumber").getAsLong();
+            final String docBody = root.get("docBody").getAsString();
+
+            bean.docId = docId;
+            bean.title = title;
+            bean.topics = topics;
+            bean.contentMD5Sum = md5sum;
+            bean.documentNumber = documentNumber;
+            bean.document = docBody;
+
+            return bean;
+        }
     }
 }
