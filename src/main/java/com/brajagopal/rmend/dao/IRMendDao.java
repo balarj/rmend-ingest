@@ -11,5 +11,5 @@ public interface IRMendDao {
     public void putDocument(DocumentBean _docBean) throws DatastoreException;
     public void putDocument(DocumentBean _docBean, String _identifier) throws DatastoreException;
 
-    public void getDocument(Long _documentNumber) throws DatastoreException;
+    public DocumentBean getDocument(Long _documentNumber) throws DatastoreException;
 }

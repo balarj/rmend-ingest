@@ -1,6 +1,7 @@
 package com.brajagopal.rmend.dao;
 
 import com.brajagopal.rmend.data.beans.DocumentBean;
+import com.brajagopal.rmend.utils.JsonUtils;
 import com.google.api.services.datastore.DatastoreV1.*;
 import com.google.api.services.datastore.client.Datastore;
 import com.google.api.services.datastore.client.DatastoreException;
@@ -29,7 +30,7 @@ public class GCloudDao implements IRMendDao {
     static final String DOCUMENT_MD5SUM_KIND = "md5sum";
     static final String DOCUMENT_TITLE_KIND = "title";
     static final String DOCUMENT_NUMBER_KIND = "docNumber";
-    static final String DOCUMENT_BODY_KIND = "docBody";
+    static final String DOCUMENT_JSON_KIND = "docBody";
     static final String DOCUMENT_TOPIC_KIND = "topic";
     static final String KEY_PROPERTY = "__key__";
 
@@ -64,7 +65,7 @@ public class GCloudDao implements IRMendDao {
                 .addProperty(DatastoreHelper.makeProperty(DOCUMENT_TITLE_KIND, DatastoreHelper.makeValue(_docBean.getTitle()).setIndexed(false)))
                 .addProperty(DatastoreHelper.makeProperty(DOCUMENT_TOPIC_KIND, DatastoreHelper.makeValue(topicValues)))
                 .addProperty(DatastoreHelper.makeProperty(DOCUMENT_NUMBER_KIND, DatastoreHelper.makeValue(_docBean.getDocumentNumber())))
-                .addProperty(DatastoreHelper.makeProperty(DOCUMENT_BODY_KIND, DatastoreHelper.makeValue(_docBean.getDocument()).setIndexed(false)))
+                .addProperty(DatastoreHelper.makeProperty(DOCUMENT_JSON_KIND, DatastoreHelper.makeValue(JsonUtils.getGsonInstance().toJson(_docBean)).setIndexed(false)))
                 .build();
 
         CommitRequest request = CommitRequest.newBuilder()
@@ -76,7 +77,7 @@ public class GCloudDao implements IRMendDao {
     }
 
     @Override
-    public void getDocument(Long _documentNumber) throws DatastoreException {
+    public DocumentBean getDocument(Long _documentNumber) throws DatastoreException {
         Query.Builder query = Query.newBuilder();
         query.addKindBuilder().setName(DOCUMENT_KIND);
         query.setFilter(DatastoreHelper.makeFilter(
@@ -87,8 +88,8 @@ public class GCloudDao implements IRMendDao {
         if (documents.size() == 0) {
             logger.warn("No Document found for DocumentNumber: " + _documentNumber);
         }
-        for (Entity document : documents) {
-            Map<String, Value> propertyMap = DatastoreHelper.getPropertyMap(document);
+        else if (documents.size() == 1) {
+            Map<String, Value> propertyMap = DatastoreHelper.getPropertyMap(documents.get(0));
             List<Value> topicValues = DatastoreHelper.getList(propertyMap.get(DOCUMENT_TOPIC_KIND));
             Collection<String> topics = Lists.transform(topicValues, new Function<Value, String>() {
                 @Nullable
@@ -98,11 +99,9 @@ public class GCloudDao implements IRMendDao {
                 }
             });
 
-            logger.info(
-                    DatastoreHelper.getLong(propertyMap.get(DOCUMENT_NUMBER_KIND)) + ": " +
-                            DatastoreHelper.getString(propertyMap.get(DOCUMENT_TITLE_KIND)) + " - " +
-                            topics);
+            return JsonUtils.getGsonInstance().fromJson(DatastoreHelper.getString(propertyMap.get(DOCUMENT_JSON_KIND)), DocumentBean.class);
         }
+        return null;
     }
 
     private List<Entity> runQuery(Query query) throws DatastoreException {
