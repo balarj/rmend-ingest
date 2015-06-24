@@ -46,13 +46,12 @@ public class ContentProcessor {
             } else {
                 throw new UnsupportedOperationException("Input file path not specified.");
             }
+            logger.info("File count: " + processor.getFileCnt());
+            //logger.info(processor.dictionary);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        logger.info("File count: " + processor.getFileCnt());
-        processor.dao.getDocument(1435057898958l);
-        //logger.info(processor.dictionary);
     }
 
     public void processPath(File _file) {
@@ -106,7 +105,7 @@ public class ContentProcessor {
                 }
                 documentBean.setContentBeans(Collections.unmodifiableCollection(contentBeans));
                 dictionary.putData(documentBean);
-                logger.info(documentBean);
+                logger.info(documentBean.getDocumentNumber());
             }
             logger.info(_file.getPath() + " : " + documentBean.getEntitySize());
             dao.putDocument(documentBean);
