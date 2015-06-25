@@ -150,6 +150,16 @@ public class GCloudDao implements IRMendDao {
         }
     }
 
+    @Override
+    public Collection<DocumentMeta> getEntityMeta(String _metaIdentifier) throws DatastoreException {
+        return null;
+    }
+
+    @Override
+    public Map<String, Collection<DocumentMeta>> getEntityMeta(Collection<String> _metaIdentifier) throws DatastoreException {
+        return null;
+    }
+
     private void persist(Mutation.Builder _builder) throws DatastoreException {
         CommitRequest request = CommitRequest.newBuilder()
                 .setMode(CommitRequest.Mode.NON_TRANSACTIONAL)

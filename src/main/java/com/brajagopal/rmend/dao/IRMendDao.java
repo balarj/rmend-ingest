@@ -22,5 +22,7 @@ public interface IRMendDao {
     // Entity specific DAO methods
     public void putEntityMeta(Collection<Map.Entry<String, DocumentMeta>> _docMetaCollection) throws DatastoreException;
 
+    public Collection<DocumentMeta> getEntityMeta(String _metaIdentifier) throws DatastoreException;
+    public Map<String, Collection<DocumentMeta>> getEntityMeta(Collection<String> _metaIdentifier) throws DatastoreException;
 
 }
