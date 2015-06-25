@@ -15,7 +15,10 @@ import org.apache.log4j.Logger;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <bxr4261>
@@ -141,7 +144,7 @@ public class GCloudDao implements IRMendDao {
                     persist(builder);
                 }
                 catch (DatastoreException e) {
-                    logger.warn(e);
+                    logger.warn("Failed to persist : "+ identifier + " (" + e.getMessage() + ")");
                 }
                 finally {
                     builder = Mutation.newBuilder();
@@ -152,7 +155,25 @@ public class GCloudDao implements IRMendDao {
 
     @Override
     public Collection<DocumentMeta> getEntityMeta(String _metaIdentifier) throws DatastoreException {
-        return null;
+        Collection<DocumentMeta> retVal = null;
+        Query.Builder query = Query.newBuilder();
+        query.addKindBuilder().setName(ENTITY_KIND);
+        query.setFilter(DatastoreHelper.makeFilter(
+                ENTITIY_CLASSIFIER_KIND,
+                PropertyFilter.Operator.EQUAL,
+                DatastoreHelper.makeValue(_metaIdentifier)));
+        List<Entity> entityMetadata = runQuery(query.build());
+        if (entityMetadata.size() == 0) {
+            logger.warn("No Metadata found for EntityId: " + _metaIdentifier);
+        }
+        else if (entityMetadata.size() > 0) {
+            retVal = new ArrayList<DocumentMeta>(entityMetadata.size());
+            for (Entity entity : entityMetadata) {
+                Map<String, Value> propertyMap = DatastoreHelper.getPropertyMap(entity);
+                retVal.add(JsonUtils.getGsonInstance().fromJson(DatastoreHelper.getString(propertyMap.get(DOCUMENT_META_KIND)), DocumentMeta.class));
+            }
+        }
+        return retVal;
     }
 
     @Override
