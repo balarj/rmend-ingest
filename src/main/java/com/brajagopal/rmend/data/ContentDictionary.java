@@ -1,11 +1,14 @@
 package com.brajagopal.rmend.data;
 
+import com.brajagopal.rmend.dao.IRMendDao;
 import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.data.beans.RelationsBean;
 import com.brajagopal.rmend.data.meta.DocumentMeta;
+import com.google.api.services.datastore.client.DatastoreException;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.list.TreeList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -19,12 +22,11 @@ import java.util.Collection;
 public class ContentDictionary {
 
     private final SetMultimap<String, DocumentMeta> dict;
-    private static final String KEY_SEPARATOR = ":";
+    public static final String KEY_SEPARATOR = ":";
     private static final Logger logger = Logger.getLogger(ContentDictionary.class);
 
     public ContentDictionary() {
         dict = HashMultimap.create();
-
     }
 
     public void putData(DocumentBean _documentBean) {
@@ -62,6 +64,13 @@ public class ContentDictionary {
 
     public int size() {
         return dict.size();
+    }
+
+    public void persistData(IRMendDao _dao) throws DatastoreException {
+        if (CollectionUtils.isEmpty(dict.entries())) {
+            logger.warn("The ContentDictionary is empty.");
+        }
+        _dao.putEntityMeta(dict.entries());
     }
 
     @Override
