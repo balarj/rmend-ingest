@@ -35,24 +35,30 @@ public class ContentProcessor {
 
     public static void main(String[] args) throws GeneralSecurityException, IOException, DatastoreException {
         ContentProcessor processor = new ContentProcessor();
+        //processor.process(args);
+        logger.info(dao.getEntityMeta("ENTITIES:City:athens"));
+        logger.info(dao.getDocument(1435242505646l).getDocument());
+    }
+
+    public void process(String[] args) {
         try {
             if (args.length > 0) {
                 File fIn = new File(args[0]);
                 if (fIn.exists()) {
-                    processor.processPath(fIn);
+                    processPath(fIn);
                 } else {
                     throw new UnsupportedOperationException("Input argument is not a file.");
                 }
             } else {
                 throw new UnsupportedOperationException("Input file path not specified.");
             }
-            logger.info("File count: " + processor.getFileCnt());
+            logger.info("File count: " + getFileCnt());
 
-            processor.getDictionary().persistData(dao);
-            //logger.info(processor.dictionary);
+            getDictionary().persistData(dao);
+            //logger.info(processor.getDictionary());
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
     }
 
