@@ -26,7 +26,7 @@ public class ContentProcessor {
     private static Logger logger = Logger.getLogger(ContentProcessor.class);
     private int fileCnt;
     private ContentDictionary dictionary = new ContentDictionary();
-    private IRMendDao dao = GCloudDao.getLocalInstance();
+    private static IRMendDao dao;
     private int maxCnt = 150;
 
     private ContentProcessor() throws GeneralSecurityException, IOException {
@@ -47,6 +47,8 @@ public class ContentProcessor {
                 throw new UnsupportedOperationException("Input file path not specified.");
             }
             logger.info("File count: " + processor.getFileCnt());
+
+            processor.getDictionary().persistData(dao);
             //logger.info(processor.dictionary);
         }
         catch (Exception e) {
@@ -121,5 +123,9 @@ public class ContentProcessor {
 
     public int getFileCnt() {
         return fileCnt;
+    }
+
+    public ContentDictionary getDictionary() {
+        return dictionary;
     }
 }
