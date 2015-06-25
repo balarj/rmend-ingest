@@ -1,6 +1,8 @@
 package com.brajagopal.rmend.dao;
 
+import com.brajagopal.rmend.data.ContentDictionary;
 import com.brajagopal.rmend.data.beans.DocumentBean;
+import com.brajagopal.rmend.data.meta.DocumentMeta;
 import com.brajagopal.rmend.utils.JsonUtils;
 import com.google.api.services.datastore.DatastoreV1.*;
 import com.google.api.services.datastore.client.Datastore;
@@ -13,18 +15,17 @@ import org.apache.log4j.Logger;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author <bxr4261>
  */
+@SuppressWarnings("unused")
 public class GCloudDao implements IRMendDao {
 
     private static final Logger logger = Logger.getLogger(GCloudDao.class);
     private final Datastore datastore;
+    private int batchSize;
 
     static final String DOCUMENT_KIND = "document";
     static final String DOCUMENT_MD5SUM_KIND = "md5sum";
@@ -34,7 +35,17 @@ public class GCloudDao implements IRMendDao {
     static final String DOCUMENT_TOPIC_KIND = "topic";
     static final String KEY_PROPERTY = "__key__";
 
+    static final String ENTITY_KIND = "entity";
+    static final String DOCUMENT_SCORE_KIND = "score";
+    static final String ENTITIY_CLASSIFIER_KIND = "entityId";
+    static final String DOCUMENT_META_KIND = "docMeta";
+
     private GCloudDao(boolean _isLocal) throws GeneralSecurityException, IOException {
+        this(_isLocal, 1);
+    }
+
+    private GCloudDao(boolean _isLocal, int _batchSize) throws GeneralSecurityException, IOException {
+        batchSize = _batchSize;
         if (_isLocal) {
             datastore = DatastoreHelper.getDatastoreFromEnv();
         }
@@ -47,9 +58,13 @@ public class GCloudDao implements IRMendDao {
         return new GCloudDao(true);
     }
 
+    public static GCloudDao getLocalInstance(int _batchSize) throws GeneralSecurityException, IOException {
+        return new GCloudDao(true, _batchSize);
+    }
+
     @Override
     public void putDocument(DocumentBean _docBean) throws DatastoreException {
-        putDocument(_docBean, _docBean.getContentMD5Sum());
+        putDocument(_docBean, _docBean.getDocId());
     }
 
     @Override
@@ -102,6 +117,46 @@ public class GCloudDao implements IRMendDao {
             return JsonUtils.getGsonInstance().fromJson(DatastoreHelper.getString(propertyMap.get(DOCUMENT_JSON_KIND)), DocumentBean.class);
         }
         return null;
+    }
+
+    @Override
+    public void putEntityMeta(Collection<Map.Entry<String , DocumentMeta>> _docMetaCollection) throws DatastoreException {
+        int ctr = 0;
+        Mutation.Builder builder = Mutation.newBuilder();
+        for (Map.Entry<String, DocumentMeta> entry : _docMetaCollection) {
+            String _entityIdentifier = entry.getKey();
+            DocumentMeta _docMeta = entry.getValue();
+            String identifier = _entityIdentifier + ContentDictionary.KEY_SEPARATOR + _docMeta.getDocId();
+            Entity article = Entity.newBuilder()
+                    .setKey(DatastoreHelper.makeKey(ENTITY_KIND, identifier))
+                    .addProperty(DatastoreHelper.makeProperty(ENTITIY_CLASSIFIER_KIND, DatastoreHelper.makeValue(_entityIdentifier)))
+                    .addProperty(DatastoreHelper.makeProperty(DOCUMENT_SCORE_KIND, DatastoreHelper.makeValue(_docMeta.getScore())))
+                    .addProperty(DatastoreHelper.makeProperty(DOCUMENT_META_KIND, DatastoreHelper.makeValue(JsonUtils.getGsonInstance().toJson(_docMeta)).setIndexed(false)))
+                    .build();
+
+            builder.addInsert(article);
+
+            if ((ctr++ % batchSize) == 0) {
+                try {
+                    persist(builder);
+                }
+                catch (DatastoreException e) {
+                    logger.warn(e);
+                }
+                finally {
+                    builder = Mutation.newBuilder();
+                }
+            }
+        }
+    }
+
+    private void persist(Mutation.Builder _builder) throws DatastoreException {
+        CommitRequest request = CommitRequest.newBuilder()
+                .setMode(CommitRequest.Mode.NON_TRANSACTIONAL)
+                .setMutation(_builder)
+                .build();
+
+        datastore.commit(request);
     }
 
     private List<Entity> runQuery(Query query) throws DatastoreException {
