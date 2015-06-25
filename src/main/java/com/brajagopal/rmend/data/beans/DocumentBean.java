@@ -153,7 +153,7 @@ public class DocumentBean extends BaseContent {
                 jsonTopicsArray.add(topicPrimitive);
             }
             root.add("topics", jsonTopicsArray);
-            root.addProperty("documentNumber", bean.documentNumber);
+            root.addProperty("docNum", bean.documentNumber);
             final JsonObject jsonObject = new JsonObject();
             for (Map.Entry<ContentType, Collection<BaseContent>> entry : bean.getContentBeansByType().entrySet()) {
                 final JsonArray jsonArray = new JsonArray();
@@ -185,7 +185,7 @@ public class DocumentBean extends BaseContent {
             for (final JsonElement _jsonElement : jsonTopicsArray) {
                 topics.add(_jsonElement.getAsString());
             }
-            final long documentNumber = root.get("documentNumber").getAsLong();
+            final long documentNumber = root.get("docNum").getAsLong();
             final String docBody = root.get("docBody").getAsString();
 
             bean.docId = docId;
