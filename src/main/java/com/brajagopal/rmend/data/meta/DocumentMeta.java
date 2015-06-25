@@ -1,7 +1,9 @@
 package com.brajagopal.rmend.data.meta;
 
 import com.google.common.primitives.Doubles;
+import com.google.gson.*;
 
+import java.lang.reflect.Type;
 import java.util.Comparator;
 
 /**
@@ -9,26 +11,26 @@ import java.util.Comparator;
  */
 public class DocumentMeta {
 
-    private final long docId;
-    private final String uniqueId;
+    private final long documentNumber;
+    private final String docId;
     private final double score;
 
-    private DocumentMeta(long _docId, String _uniqueId, Double _score) {
+    private DocumentMeta(long _documentNumber, String _docId, Double _score) {
+        this.documentNumber = _documentNumber;
         this.docId = _docId;
-        this.uniqueId = _uniqueId;
         this.score = _score;
     }
 
-    public static DocumentMeta createInstance(long _docId, String _uniqueId, Double _score) {
-        return new DocumentMeta(_docId, _uniqueId, _score);
+    public static DocumentMeta createInstance(long _documentNumber, String _docId, Double _score) {
+        return new DocumentMeta(_documentNumber, _docId, _score);
     }
 
-    public long getDocId() {
+    public long getDocumentNumber() {
+        return documentNumber;
+    }
+
+    public String getDocId() {
         return docId;
-    }
-
-    public String getUniqueId() {
-        return uniqueId;
     }
 
     public double getScore() {
@@ -38,8 +40,8 @@ public class DocumentMeta {
     @Override
     public String toString() {
         return "DocumentMeta {" +
-                "docId=" + docId +
-                ", uniqueId='" + uniqueId + '\'' +
+                "documentNumber=" + documentNumber +
+                ", docId='" + docId + '\'' +
                 ", score=" + score +
                 '}';
     }
@@ -51,9 +53,9 @@ public class DocumentMeta {
 
         DocumentMeta that = (DocumentMeta) o;
 
-        if (docId != that.docId) return false;
+        if (documentNumber != that.documentNumber) return false;
         if (Double.compare(that.score, score) != 0) return false;
-        if (!uniqueId.equals(that.uniqueId)) return false;
+        if (!docId.equals(that.docId)) return false;
 
         return true;
     }
@@ -62,8 +64,8 @@ public class DocumentMeta {
     public int hashCode() {
         int result;
         long temp;
-        result = (int) (docId ^ (docId >>> 32));
-        result = 31 * result + uniqueId.hashCode();
+        result = (int) (documentNumber ^ (documentNumber >>> 32));
+        result = 31 * result + docId.hashCode();
         temp = Double.doubleToLongBits(score);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
@@ -76,4 +78,26 @@ public class DocumentMeta {
             return Doubles.compare(o2.getScore(), o1.getScore());
         }
     };
+
+    public static class DocumentMetaSerDe implements JsonSerializer<DocumentMeta>, JsonDeserializer<DocumentMeta> {
+
+        @Override
+        public JsonElement serialize(DocumentMeta documentMeta, Type type, JsonSerializationContext jsonSerializationContext) {
+            JsonObject root = new JsonObject();
+            root.addProperty("docId", documentMeta.docId);
+            root.addProperty("docNum", documentMeta.documentNumber);
+            root.addProperty("score", documentMeta.score);
+            return root;
+        }
+
+        @Override
+        public DocumentMeta deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            final JsonObject root = jsonElement.getAsJsonObject();
+            final String docId = root.get("docId").getAsString();
+            final Long documentNumber = root.get("docNum").getAsLong();
+            final Double score = root.get("score").getAsDouble();
+
+            return new DocumentMeta(documentNumber, docId, score);
+        }
+    }
 }
