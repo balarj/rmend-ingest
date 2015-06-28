@@ -5,11 +5,15 @@ import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.data.meta.DocumentMeta;
 import com.brajagopal.rmend.utils.JsonUtils;
 import com.google.api.services.datastore.DatastoreV1.*;
+import com.google.api.services.datastore.DatastoreV1.Entity;
+import com.google.api.services.datastore.DatastoreV1.Query;
 import com.google.api.services.datastore.client.Datastore;
 import com.google.api.services.datastore.client.DatastoreException;
 import com.google.api.services.datastore.client.DatastoreHelper;
 import com.google.common.base.Function;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Nullable;
@@ -67,7 +71,7 @@ public class GCloudDao implements IRMendDao {
 
     @Override
     public void putDocument(DocumentBean _docBean) throws DatastoreException {
-        putDocument(_docBean, _docBean.getDocId());
+        putDocument(_docBean, _docBean.getContentMD5Sum());
     }
 
     @Override
@@ -161,7 +165,9 @@ public class GCloudDao implements IRMendDao {
         query.setFilter(DatastoreHelper.makeFilter(
                 ENTITIY_CLASSIFIER_KIND,
                 PropertyFilter.Operator.EQUAL,
-                DatastoreHelper.makeValue(_metaIdentifier)));
+                DatastoreHelper.makeValue(_metaIdentifier)
+        ));
+        query.addOrder(DatastoreHelper.makeOrder("score", PropertyOrder.Direction.DESCENDING));
         List<Entity> entityMetadata = runQuery(query.build());
         if (entityMetadata.size() == 0) {
             logger.warn("No Metadata found for EntityId: " + _metaIdentifier);
@@ -177,8 +183,15 @@ public class GCloudDao implements IRMendDao {
     }
 
     @Override
-    public Map<String, Collection<DocumentMeta>> getEntityMeta(Collection<String> _metaIdentifier) throws DatastoreException {
-        return null;
+    public HashMultimap<String, DocumentMeta> getEntityMeta(Collection<String> _metaIdentifiers) throws DatastoreException {
+        HashMultimap<String, DocumentMeta> retVal = HashMultimap.create();
+        for (String metaIdentifier : _metaIdentifiers) {
+            Collection<DocumentMeta> entityMeta = getEntityMeta(metaIdentifier);
+            if (!CollectionUtils.isEmpty(entityMeta)) {
+                retVal.putAll(metaIdentifier, getEntityMeta(metaIdentifier));
+            }
+        }
+        return retVal;
     }
 
     private void persist(Mutation.Builder _builder) throws DatastoreException {
@@ -205,5 +218,4 @@ public class GCloudDao implements IRMendDao {
         }
         return entities;
     }
-
 }
