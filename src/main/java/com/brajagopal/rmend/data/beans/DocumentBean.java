@@ -1,8 +1,10 @@
 package com.brajagopal.rmend.data.beans;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.TreeMultimap;
 import com.google.gson.*;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -139,13 +141,13 @@ public class DocumentBean extends BaseContent {
         return contentBeans.asMap();
     }
 
-    public HashMultimap<ContentType, BaseContent> getRelevantBeans() {
-        HashMultimap<ContentType, BaseContent> retVal = HashMultimap.create();
+    public TreeMultimap<ContentType, BaseContent> getRelevantBeans() {
+        TreeMultimap<ContentType, BaseContent> retVal = TreeMultimap.create(ComparatorUtils.NATURAL_COMPARATOR, BaseContent.CONTENT_COMPARATOR);
         for (Map.Entry<ContentType, Collection<BaseContent>> beansByType : getContentBeansByType().entrySet()) {
             List<BaseContent> sortedValues = new ArrayList<BaseContent>(beansByType.getValue());
             Collections.sort(sortedValues, (Comparator<? super BaseContent>) BaseContent.CONTENT_COMPARATOR);
-            if (sortedValues.size() > 2) {
-                sortedValues.subList(2, sortedValues.size()).clear(); // trim to top 2 from each kind
+            if (sortedValues.size() > 3) {
+                sortedValues.subList(3, sortedValues.size()).clear(); // trim to top 2 from each kind
             }
             retVal.putAll(beansByType.getKey(), sortedValues);
         }
