@@ -13,7 +13,7 @@ public class RelationsBean extends BaseContent {
     private String status;
 
     public RelationsBean() {
-        this(ContentType.RELATIONS);
+        this(ContentType.DISCARDED);
     }
 
     private RelationsBean(ContentType _contentType) {
