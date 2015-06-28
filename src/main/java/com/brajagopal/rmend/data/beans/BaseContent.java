@@ -2,6 +2,7 @@ package com.brajagopal.rmend.data.beans;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.InvalidClassException;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -23,6 +24,15 @@ public abstract class BaseContent {
     public static Class<? extends BaseContent> find(Map<String, ? extends Object> _value) {
         if (_value.containsKey(KEY_TYPEGROUP)) {
             ContentType contentType = ContentType.getInstance((String) _value.get(KEY_TYPEGROUP));
+            if (contentType != null) {
+                return contentType.getClassInstance();
+            }
+        }
+        else if (_value.containsKey("contentType")) {
+            ContentType contentType = null;
+            try {
+                contentType = ContentType.valueOf((String) _value.get("contentType"));
+            } catch (IllegalArgumentException e) {}
             if (contentType != null) {
                 return contentType.getClassInstance();
             }
@@ -58,7 +68,7 @@ public abstract class BaseContent {
         TOPICS("topics", TopicBean.class),
         SOCIAL_TAGS("socialTag", SocialTagBean.class),
         ENTITIES("entities", EntitiesBean.class),
-        RELATIONS("relations", RelationsBean.class),
+        /*RELATIONS("relations", RelationsBean.class),*/
         DOCUMENT_INFO("document", DocumentBean.class),
         DISCARDED(StringUtils.EMPTY, null);
 
@@ -86,6 +96,20 @@ public abstract class BaseContent {
 
         public String getTypeGroup() {
             return name;
+        }
+    }
+
+    public static final BaseContent getChildInstance(Map<String, ? extends Object> entityValue)
+            throws IllegalAccessException, InstantiationException, InvalidClassException {
+
+        Class<? extends BaseContent> content = BaseContent.find(entityValue);
+        if (content != null) {
+            BaseContent beanValue = content.newInstance().getInstance();
+            beanValue.process(entityValue);
+            return beanValue;
+        }
+        else {
+            throw new InvalidClassException("Skipping processing for entity: " + entityValue.get(BaseContent.KEY_TYPEGROUP));
         }
     }
 }
