@@ -1,6 +1,5 @@
 package com.brajagopal.rmend.data.meta;
 
-import com.google.common.primitives.Doubles;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;
@@ -53,8 +52,8 @@ public class DocumentMeta {
 
         DocumentMeta that = (DocumentMeta) o;
 
-        if (documentNumber != that.documentNumber) return false;
         if (Double.compare(that.score, score) != 0) return false;
+        if (documentNumber != that.documentNumber) return false;
         if (!docId.equals(that.docId)) return false;
 
         return true;
@@ -74,8 +73,19 @@ public class DocumentMeta {
     public static final Comparator<DocumentMeta> DOCUMENT_META_COMPARATOR = new Comparator<DocumentMeta>() {
         @Override
         public int compare(DocumentMeta o1, DocumentMeta o2) {
-            // Reversing the ordering to sort descending
-            return Doubles.compare(o2.getScore(), o1.getScore());
+            if (o1.score > o2.score) {
+                return -1;
+            } else if (o1.score < o2.score) {
+                return 1;
+            }
+
+            if (o1.documentNumber < o2.documentNumber) {
+                return -1;
+            } else if (o1.documentNumber > o2.documentNumber) {
+                return 1;
+            }
+
+            return 0;
         }
     };
 
