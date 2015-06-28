@@ -5,15 +5,14 @@ import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.data.meta.DocumentMeta;
 import com.brajagopal.rmend.utils.JsonUtils;
 import com.google.api.services.datastore.DatastoreV1.*;
-import com.google.api.services.datastore.DatastoreV1.Entity;
-import com.google.api.services.datastore.DatastoreV1.Query;
 import com.google.api.services.datastore.client.Datastore;
 import com.google.api.services.datastore.client.DatastoreException;
 import com.google.api.services.datastore.client.DatastoreHelper;
 import com.google.common.base.Function;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.TreeMultimap;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Nullable;
@@ -183,8 +182,8 @@ public class GCloudDao implements IRMendDao {
     }
 
     @Override
-    public HashMultimap<String, DocumentMeta> getEntityMeta(Collection<String> _metaIdentifiers) throws DatastoreException {
-        HashMultimap<String, DocumentMeta> retVal = HashMultimap.create();
+    public TreeMultimap<String, DocumentMeta> getEntityMeta(Collection<String> _metaIdentifiers) throws DatastoreException {
+        TreeMultimap<String, DocumentMeta> retVal = TreeMultimap.create(ComparatorUtils.NATURAL_COMPARATOR, DocumentMeta.DOCUMENT_META_COMPARATOR);
         for (String metaIdentifier : _metaIdentifiers) {
             Collection<DocumentMeta> entityMeta = getEntityMeta(metaIdentifier);
             if (!CollectionUtils.isEmpty(entityMeta)) {

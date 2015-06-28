@@ -3,7 +3,7 @@ package com.brajagopal.rmend.dao;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.data.meta.DocumentMeta;
 import com.google.api.services.datastore.client.DatastoreException;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.TreeMultimap;
 
 import java.util.Collection;
 import java.util.Map;
@@ -24,6 +24,6 @@ public interface IRMendDao {
     public void putEntityMeta(Collection<Map.Entry<String, DocumentMeta>> _docMetaCollection) throws DatastoreException;
 
     public Collection<DocumentMeta> getEntityMeta(String _metaIdentifier) throws DatastoreException;
-    public HashMultimap<String, DocumentMeta> getEntityMeta(Collection<String> _metaIdentifier) throws DatastoreException;
+    public TreeMultimap<String, DocumentMeta> getEntityMeta(Collection<String> _metaIdentifier) throws DatastoreException;
 
 }
