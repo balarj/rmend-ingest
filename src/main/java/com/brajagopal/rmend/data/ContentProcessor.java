@@ -36,8 +36,10 @@ public class ContentProcessor {
     public static void main(String[] args) throws GeneralSecurityException, IOException, DatastoreException {
         ContentProcessor processor = new ContentProcessor();
         //processor.process(args);
-        logger.info(dao.getEntityMeta("ENTITIES:City:athens"));
-        logger.info(dao.getDocument(1435242505646l).getDocument());
+        //HashMultimap<String, DocumentMeta> entityValues = dao.getEntityMeta(Arrays.asList("ENTITIES:City:athens", "ENTITIES:City:barcelona"));
+        //logger.info(entityValues);
+        //logger.info(entityValues.size());
+        logger.info(dao.getDocument(2315363993l));
     }
 
     public void process(String[] args) {
@@ -55,7 +57,7 @@ public class ContentProcessor {
             logger.info("File count: " + getFileCnt());
 
             getDictionary().persistData(dao);
-            //logger.info(processor.getDictionary());
+            //logger.info(getDictionary());
         }
         catch (Exception e) {
             logger.error(e);
@@ -84,30 +86,20 @@ public class ContentProcessor {
             Map<String, ? extends Object> val = new Gson().fromJson(new FileReader(_file), Map.class);
             if (MapUtils.isNotEmpty(val)) {
                 for (Map.Entry<String, ? extends Object> entry : val.entrySet()) {
-                    String key = entry.getKey();
                     if (entry.getValue() instanceof Map) {
-                        Map<String, ? extends Object> entityValue = (Map<String, ? extends Object>) entry.getValue();
-                        Class<? extends BaseContent> content = BaseContent.find(entityValue);
-                        if (content != null) {
-                            try {
-                                BaseContent beanValue = content.newInstance().getInstance();
-                                beanValue.process(entityValue);
+                        try {
+                            BaseContent beanValue =
+                                    BaseContent.getChildInstance((Map<String, ? extends Object>) entry.getValue());
 
-                                if (beanValue instanceof DocumentBean) {
-                                    documentBean = (DocumentBean) beanValue;
-                                }
-                                else {
-                                    contentBeans.add(beanValue);
-                                }
-
-                            } catch (InstantiationException e) {
-                                e.printStackTrace();
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
+                            if (beanValue instanceof DocumentBean) {
+                                documentBean = (DocumentBean) beanValue;
                             }
-                        }
-                        else {
-                            logger.warn("Skipping processing for entity: " + entityValue.get(BaseContent.KEY_TYPEGROUP));
+                            else {
+                                contentBeans.add(beanValue);
+                            }
+
+                        } catch (Exception e) {
+                            logger.warn(e);
                         }
                     }
                 }
