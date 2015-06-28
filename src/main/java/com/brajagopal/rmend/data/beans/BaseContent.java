@@ -1,9 +1,11 @@
 package com.brajagopal.rmend.data.beans;
 
+import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InvalidClassException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Map;
 
 /**
@@ -112,4 +114,11 @@ public abstract class BaseContent {
             throw new InvalidClassException("Skipping processing for entity: " + entityValue.get(BaseContent.KEY_TYPEGROUP));
         }
     }
+
+    public static final Comparator<? extends BaseContent> CONTENT_COMPARATOR = new Comparator<BaseContent>() {
+        @Override
+        public int compare(BaseContent o1, BaseContent o2) {
+            return ComparatorUtils.NATURAL_COMPARATOR.compare(o2.getScore(), o1.getScore());
+        }
+    };
 }
