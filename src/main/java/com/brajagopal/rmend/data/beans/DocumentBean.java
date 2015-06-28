@@ -9,10 +9,7 @@ import org.joda.time.DateTime;
 
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author <bxr4261>
@@ -142,8 +139,17 @@ public class DocumentBean extends BaseContent {
         return contentBeans.asMap();
     }
 
-    public Collection<BaseContent> getRelevantBeans() {
-        return null;
+    public HashMultimap<ContentType, BaseContent> getRelevantBeans() {
+        HashMultimap<ContentType, BaseContent> retVal = HashMultimap.create();
+        for (Map.Entry<ContentType, Collection<BaseContent>> beansByType : getContentBeansByType().entrySet()) {
+            List<BaseContent> sortedValues = new ArrayList<BaseContent>(beansByType.getValue());
+            Collections.sort(sortedValues, (Comparator<? super BaseContent>) BaseContent.CONTENT_COMPARATOR);
+            if (sortedValues.size() > 2) {
+                sortedValues.subList(2, sortedValues.size()).clear(); // trim to top 2 from each kind
+            }
+            retVal.putAll(beansByType.getKey(), sortedValues);
+        }
+        return retVal;
     }
 
     public static class DocumentSerDe implements JsonSerializer<DocumentBean>, JsonDeserializer<DocumentBean> {
