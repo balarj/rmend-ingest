@@ -4,6 +4,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.gson.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
@@ -16,6 +18,8 @@ import java.util.Map;
  * @author <bxr4261>
  */
 public class DocumentBean extends BaseContent {
+
+    private static Logger logger = Logger.getLogger(DocumentBean.class);
 
     private long documentNumber;
     private String docId;
@@ -51,7 +55,7 @@ public class DocumentBean extends BaseContent {
 
         this.docId = documentId.substring(documentId.lastIndexOf("/") + 1, documentId.length());
         this.contentMD5Sum = DigestUtils.md5Hex(this.document);
-        this.documentNumber = System.currentTimeMillis();
+        this.documentNumber = System.currentTimeMillis() - new DateTime("2015-06-01").getMillis();
         contentBeans = HashMultimap.create();
     }
 
@@ -138,6 +142,10 @@ public class DocumentBean extends BaseContent {
         return contentBeans.asMap();
     }
 
+    public Collection<BaseContent> getRelevantBeans() {
+        return null;
+    }
+
     public static class DocumentSerDe implements JsonSerializer<DocumentBean>, JsonDeserializer<DocumentBean> {
 
         @Override
@@ -154,18 +162,16 @@ public class DocumentBean extends BaseContent {
             }
             root.add("topics", jsonTopicsArray);
             root.addProperty("docNum", bean.documentNumber);
-            final JsonObject jsonObject = new JsonObject();
+            final JsonArray jsonContentBeanArray = new JsonArray();
             for (Map.Entry<ContentType, Collection<BaseContent>> entry : bean.getContentBeansByType().entrySet()) {
-                final JsonArray jsonArray = new JsonArray();
                 for (final BaseContent contentBean : entry.getValue()) {
                     try {
-                        jsonArray.add(new JsonPrimitive(contentBean.getName()));
+                        jsonContentBeanArray.add(new JsonPrimitive(new Gson().toJson(contentBean)));
                     }
                     catch (UnsupportedOperationException e) {}
                 }
-                jsonObject.add(entry.getKey().toString(), jsonArray);
             }
-            root.add("contentBeans", jsonObject);
+            root.add("contentBeans", jsonContentBeanArray);
 
             return root;
         }
@@ -177,23 +183,31 @@ public class DocumentBean extends BaseContent {
             DocumentBean bean = new DocumentBean();
             final JsonObject root = jsonElement.getAsJsonObject();
 
-            final String docId = root.get("docId").getAsString();
-            final String title = root.get("title").getAsString();
-            final String md5sum = root.get("md5sum").getAsString();
+            bean.docId = root.get("docId").getAsString();
+            bean.title = root.get("title").getAsString();
+            bean.contentMD5Sum = root.get("md5sum").getAsString();
             final Collection<String> topics = new ArrayList<String>();
             final JsonArray jsonTopicsArray = root.get("topics").getAsJsonArray();
             for (final JsonElement _jsonElement : jsonTopicsArray) {
                 topics.add(_jsonElement.getAsString());
             }
-            final long documentNumber = root.get("docNum").getAsLong();
-            final String docBody = root.get("docBody").getAsString();
-
-            bean.docId = docId;
-            bean.title = title;
             bean.topics = topics;
-            bean.contentMD5Sum = md5sum;
-            bean.documentNumber = documentNumber;
-            bean.document = docBody;
+            bean.documentNumber = root.get("docNum").getAsLong();
+            bean.document = root.get("docBody").getAsString();
+            final JsonArray jsonContentBeanArray = root.get("contentBeans").getAsJsonArray();
+
+            HashMultimap<ContentType, BaseContent> contentBeans = null;
+            if (jsonContentBeanArray.size() > 0) {
+                contentBeans = HashMultimap.create();
+                for (final JsonElement _jsonElement : jsonContentBeanArray) {
+                    Map content = new Gson().fromJson(_jsonElement.getAsString(), Map.class);
+                    try {
+                        BaseContent baseContent = BaseContent.getChildInstance(content);
+                        contentBeans.put(baseContent.getContentType(), baseContent);
+                    } catch (Exception e) {}
+                }
+            }
+            bean.contentBeans = contentBeans;
 
             return bean;
         }
