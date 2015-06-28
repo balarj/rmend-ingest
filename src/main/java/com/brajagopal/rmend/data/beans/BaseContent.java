@@ -1,6 +1,5 @@
 package com.brajagopal.rmend.data.beans;
 
-import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InvalidClassException;
@@ -118,7 +117,13 @@ public abstract class BaseContent {
     public static final Comparator<? extends BaseContent> CONTENT_COMPARATOR = new Comparator<BaseContent>() {
         @Override
         public int compare(BaseContent o1, BaseContent o2) {
-            return ComparatorUtils.NATURAL_COMPARATOR.compare(o2.getScore(), o1.getScore());
+            if (o1.getScore() > o2.getScore()) {
+                return -1;
+            } else if (o1.getScore() < o2.getScore()) {
+                return 1;
+            }
+
+            return  (o1.getName().compareTo(o2.getName()));
         }
     };
 }
