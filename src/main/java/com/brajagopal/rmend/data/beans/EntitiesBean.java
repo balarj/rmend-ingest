@@ -22,8 +22,8 @@ public class EntitiesBean extends BaseContent {
 
     @Override
     public void process(Map<String, ? extends Object> _value) {
-        this.type = MapUtils.getString(_value, "_type", null);
-        this.forEndUserDisplay = MapUtils.getBoolean(_value, "forenduserdisplay", false);
+        this.type = MapUtils.getString(_value, "_type", MapUtils.getString(_value, "type", null));
+        this.forEndUserDisplay = MapUtils.getBoolean(_value, "forenduserdisplay", MapUtils.getBoolean(_value, "forEndUserDisplay", false));
         this.relevance = MapUtils.getDouble(_value, "relevance", 0.0);
         this.name = StringUtils.substringBeforeLast(StringUtils.left(MapUtils.getString(_value, "name", null), 50), "_");
     }
