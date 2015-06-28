@@ -1,6 +1,7 @@
 package com.brajagopal.rmend.data.beans;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class SocialTagBean extends BaseContent {
     public void process(Map<String, ? extends Object> _value) {
         this.forEndUserDisplay = MapUtils.getBoolean(_value, "forenduserdisplay", false);
         this.importance = MapUtils.getIntValue(_value, "importance", 0);
-        this.name = MapUtils.getString(_value, "name", null);
+        this.name = StringUtils.substringBeforeLast(StringUtils.left(MapUtils.getString(_value, "name", null), 50), "_");
     }
 
     @Override

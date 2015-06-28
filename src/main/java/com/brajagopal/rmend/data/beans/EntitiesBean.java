@@ -1,6 +1,7 @@
 package com.brajagopal.rmend.data.beans;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class EntitiesBean extends BaseContent {
         this.type = MapUtils.getString(_value, "_type", null);
         this.forEndUserDisplay = MapUtils.getBoolean(_value, "forenduserdisplay", false);
         this.relevance = MapUtils.getDouble(_value, "relevance", 0.0);
-        this.name = MapUtils.getString(_value, "name", null);
+        this.name = StringUtils.substringBeforeLast(StringUtils.left(MapUtils.getString(_value, "name", null), 50), "_");
     }
 
     @Override
