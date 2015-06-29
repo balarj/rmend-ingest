@@ -1,7 +1,8 @@
-package com.brajagopal.rmend.data;
+package com.brajagopal.rmend;
 
 import com.brajagopal.rmend.dao.GCloudDao;
 import com.brajagopal.rmend.dao.IRMendDao;
+import com.brajagopal.rmend.data.ContentDictionary;
 import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.data.meta.DocumentMeta;

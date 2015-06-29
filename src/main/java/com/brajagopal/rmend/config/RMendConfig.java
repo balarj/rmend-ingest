@@ -1,4 +1,4 @@
-package com.brajagopal.rmend;
+package com.brajagopal.rmend.config;
 
 import org.apache.http.entity.ContentType;
 import org.apache.log4j.Logger;
@@ -24,7 +24,7 @@ public class RMendConfig {
     private static final Logger logger = Logger.getLogger(RMendConfig.class);
 
     public RMendConfig() throws IOException {
-        configuration.load(getClass().getClassLoader().getResourceAsStream("config/dev.properties"));
+        configuration.load(getClass().getClassLoader().getResourceAsStream("config/prod.properties"));
     }
 
     public RMendConfig(String fileName) throws IOException {
