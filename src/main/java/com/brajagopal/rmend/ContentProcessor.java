@@ -5,10 +5,8 @@ import com.brajagopal.rmend.dao.IRMendDao;
 import com.brajagopal.rmend.data.ContentDictionary;
 import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.beans.DocumentBean;
-import com.brajagopal.rmend.data.meta.DocumentMeta;
 import com.brajagopal.rmend.exception.DatastoreExceptionManager;
 import com.google.api.services.datastore.client.DatastoreException;
-import com.google.common.collect.TreeMultimap;
 import com.google.gson.Gson;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.log4j.Logger;
@@ -17,9 +15,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 /**
+ * Traverses through the content JSON file (from the input path), and loads the Document
+ * and Entity details into the RMend DAO.
+ *
  * @author <bxr4261>
  */
 public class ContentProcessor {
@@ -28,7 +32,6 @@ public class ContentProcessor {
     private int fileCnt;
     private ContentDictionary dictionary = new ContentDictionary();
     private static IRMendDao dao;
-    private int maxCnt = 150;
 
     private DatastoreExceptionManager datastoreExceptionManager = new DatastoreExceptionManager();
 
@@ -38,16 +41,7 @@ public class ContentProcessor {
 
     public static void main(String[] args) throws GeneralSecurityException, IOException, DatastoreException {
         ContentProcessor processor = new ContentProcessor();
-
-        //processor.process(args);
-        //HashMultimap<String, DocumentMeta> entityValues = dao.getEntityMeta(Arrays.asList("ENTITIES:City:athens", "ENTITIES:City:barcelona"));
-        //logger.info(entityValues);
-        //logger.info(entityValues.size());
-
-        logger.info(dao.getDocument(2330894543l).getContentBeansByType());
-        TreeMultimap<String, DocumentMeta> entityValues = dao.getEntityMeta(Arrays.asList("ENTITIES:City:athens"));
-        logger.info(entityValues);
-        logger.info(dao.getDocument(2330894543l).getRelevantBeans());
+        processor.process(args);
     }
 
     public void process(String[] args) {
@@ -66,7 +60,6 @@ public class ContentProcessor {
 
             getDictionary().persistData(dao);
             logger.info(DatastoreExceptionManager.getValues());
-            //logger.info(getDictionary());
         }
         catch (Exception e) {
             logger.error(e);
