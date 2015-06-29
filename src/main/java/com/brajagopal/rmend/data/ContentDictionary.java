@@ -37,19 +37,7 @@ public class ContentDictionary {
                 continue;
             }
 
-            String beanType = "";
-            String beanName = "";
-
-            try {
-                beanType = _contentBean.getType();
-            }
-            catch (UnsupportedOperationException e) {}
-            try {
-                beanName = _contentBean.getName();
-            }
-            catch (UnsupportedOperationException e) {}
-
-            String key = StringUtils.join(Arrays.asList(_contentBean.getContentType(), beanType, beanName), KEY_SEPARATOR);
+            String key = makeKey(_contentBean);
             dict.put(key, DocumentMeta.createInstance(_documentBean.getDocumentNumber(), _documentBean.getDocId(), _contentBean.getScore()));
         }
     }
@@ -60,6 +48,27 @@ public class ContentDictionary {
         StringUtils.replace(key, KEY_SEPARATOR+KEY_SEPARATOR, KEY_SEPARATOR);
         retVal = new TreeList<DocumentMeta>(dict.get(key));
         return retVal;
+    }
+
+    public static String makeKey(BaseContent _contentBean) {
+
+        String beanType = "";
+        String beanName = "";
+
+        try {
+            beanType = _contentBean.getType();
+        }
+        catch (UnsupportedOperationException e) {}
+        try {
+            beanName = _contentBean.getName();
+        }
+        catch (UnsupportedOperationException e) {}
+
+        return StringUtils.join(Arrays.asList(_contentBean.getContentType(), beanType, beanName), KEY_SEPARATOR);
+    }
+
+    public static BaseContent.ContentType getContentType(String _key) {
+        return BaseContent.ContentType.valueOf(StringUtils.split(_key, KEY_SEPARATOR)[0]);
     }
 
     public int size() {
