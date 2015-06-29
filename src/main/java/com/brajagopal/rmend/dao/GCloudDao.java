@@ -3,6 +3,7 @@ package com.brajagopal.rmend.dao;
 import com.brajagopal.rmend.data.ContentDictionary;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.data.meta.DocumentMeta;
+import com.brajagopal.rmend.exception.DatastoreExceptionManager;
 import com.brajagopal.rmend.utils.JsonUtils;
 import com.google.api.services.datastore.DatastoreV1.*;
 import com.google.api.services.datastore.client.Datastore;
@@ -147,7 +148,7 @@ public class GCloudDao implements IRMendDao {
                     persist(builder);
                 }
                 catch (DatastoreException e) {
-                    logger.warn("Failed to persist : "+ identifier + " (" + e.getMessage() + ")");
+                    DatastoreExceptionManager.trackException(e, "putEntityMeta(Collection)");
                 }
                 finally {
                     builder = Mutation.newBuilder();
