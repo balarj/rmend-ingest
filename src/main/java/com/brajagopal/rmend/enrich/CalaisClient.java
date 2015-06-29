@@ -1,6 +1,6 @@
 package com.brajagopal.rmend.enrich;
 
-import com.brajagopal.rmend.RMendConfig;
+import com.brajagopal.rmend.config.RMendConfig;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
