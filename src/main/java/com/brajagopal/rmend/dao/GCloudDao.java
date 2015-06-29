@@ -1,6 +1,7 @@
 package com.brajagopal.rmend.dao;
 
 import com.brajagopal.rmend.data.ContentDictionary;
+import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.data.meta.DocumentMeta;
 import com.brajagopal.rmend.exception.DatastoreExceptionManager;
@@ -82,7 +83,7 @@ public class GCloudDao implements IRMendDao {
         }
 
         Entity article = Entity.newBuilder()
-                .setKey(DatastoreHelper.makeKey(DOCUMENT_KIND, _identifier))
+                .setKey(DatastoreHelper.makeKey(_docBean.getContentType().toString(), _identifier))
                 .addProperty(DatastoreHelper.makeProperty(DOCUMENT_MD5SUM_KIND, DatastoreHelper.makeValue(_docBean.getContentMD5Sum()).setIndexed(false)))
                 .addProperty(DatastoreHelper.makeProperty(DOCUMENT_TITLE_KIND, DatastoreHelper.makeValue(_docBean.getTitle()).setIndexed(false)))
                 .addProperty(DatastoreHelper.makeProperty(DOCUMENT_TOPIC_KIND, DatastoreHelper.makeValue(topicValues)))
@@ -101,7 +102,7 @@ public class GCloudDao implements IRMendDao {
     @Override
     public DocumentBean getDocument(Long _documentNumber) throws DatastoreException {
         Query.Builder query = Query.newBuilder();
-        query.addKindBuilder().setName(DOCUMENT_KIND);
+        query.addKindBuilder().setName(BaseContent.ContentType.DOCUMENT_INFO.toString());
         query.setFilter(DatastoreHelper.makeFilter(
                 DOCUMENT_NUMBER_KIND,
                 PropertyFilter.Operator.EQUAL,
@@ -135,7 +136,7 @@ public class GCloudDao implements IRMendDao {
             DocumentMeta _docMeta = entry.getValue();
             String identifier = _entityIdentifier + ContentDictionary.KEY_SEPARATOR + _docMeta.getDocId();
             Entity article = Entity.newBuilder()
-                    .setKey(DatastoreHelper.makeKey(ENTITY_KIND, identifier))
+                    .setKey(DatastoreHelper.makeKey(ContentDictionary.getContentType(_entityIdentifier).toString(), identifier))
                     .addProperty(DatastoreHelper.makeProperty(ENTITIY_CLASSIFIER_KIND, DatastoreHelper.makeValue(_entityIdentifier)))
                     .addProperty(DatastoreHelper.makeProperty(DOCUMENT_SCORE_KIND, DatastoreHelper.makeValue(_docMeta.getScore())))
                     .addProperty(DatastoreHelper.makeProperty(DOCUMENT_META_KIND, DatastoreHelper.makeValue(JsonUtils.getGsonInstance().toJson(_docMeta)).setIndexed(false)))
@@ -161,7 +162,7 @@ public class GCloudDao implements IRMendDao {
     public Collection<DocumentMeta> getEntityMeta(String _metaIdentifier) throws DatastoreException {
         Collection<DocumentMeta> retVal = null;
         Query.Builder query = Query.newBuilder();
-        query.addKindBuilder().setName(ENTITY_KIND);
+        query.addKindBuilder().setName(ContentDictionary.getContentType(_metaIdentifier).toString());
         query.setFilter(DatastoreHelper.makeFilter(
                 ENTITIY_CLASSIFIER_KIND,
                 PropertyFilter.Operator.EQUAL,
