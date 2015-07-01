@@ -24,7 +24,8 @@ public class SocialTagBean extends BaseContent {
     public void process(Map<String, ? extends Object> _value) {
         this.forEndUserDisplay = MapUtils.getBoolean(_value, "forenduserdisplay", false);
         this.importance = MapUtils.getIntValue(_value, "importance", 0);
-        this.name = StringUtils.substringBeforeLast(StringUtils.left(MapUtils.getString(_value, "name", null), 50), "_");
+        this.name = MapUtils.getString(_value, "name", null);
+        this.name = ((name.length() > 50)?StringUtils.substringBeforeLast(StringUtils.left(name, 50), "_"):this.name);
     }
 
     @Override

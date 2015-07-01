@@ -25,7 +25,8 @@ public class EntitiesBean extends BaseContent {
         this.type = MapUtils.getString(_value, "_type", MapUtils.getString(_value, "type", null));
         this.forEndUserDisplay = MapUtils.getBoolean(_value, "forenduserdisplay", MapUtils.getBoolean(_value, "forEndUserDisplay", false));
         this.relevance = MapUtils.getDouble(_value, "relevance", 0.0);
-        this.name = StringUtils.substringBeforeLast(StringUtils.left(MapUtils.getString(_value, "name", null), 50), "_");
+        this.name = MapUtils.getString(_value, "name", null);
+        this.name = ((name.length() > 50)?StringUtils.substringBeforeLast(StringUtils.left(name, 50), "_"):this.name);
     }
 
     @Override
