@@ -141,13 +141,21 @@ public class DocumentBean extends BaseContent {
         return contentBeans.asMap();
     }
 
+    public TreeMultimap<ContentType, BaseContent> getRelevantBeans(int _numResult) {
+        return getTopNRelevantBeans(_numResult);
+    }
+
     public TreeMultimap<ContentType, BaseContent> getRelevantBeans() {
+        return getTopNRelevantBeans(2);
+    }
+
+    private TreeMultimap<ContentType, BaseContent> getTopNRelevantBeans(int _numResult) {
         TreeMultimap<ContentType, BaseContent> retVal = TreeMultimap.create(ComparatorUtils.NATURAL_COMPARATOR, BaseContent.CONTENT_COMPARATOR);
         for (Map.Entry<ContentType, Collection<BaseContent>> beansByType : getContentBeansByType().entrySet()) {
             List<BaseContent> sortedValues = new ArrayList<BaseContent>(beansByType.getValue());
             Collections.sort(sortedValues, (Comparator<? super BaseContent>) BaseContent.CONTENT_COMPARATOR);
-            if (sortedValues.size() > 3) {
-                sortedValues.subList(3, sortedValues.size()).clear(); // trim to top 2 from each kind
+            if (sortedValues.size() > _numResult) {
+                sortedValues.subList(_numResult, sortedValues.size()).clear(); // trim to top 2 from each kind
             }
             retVal.putAll(beansByType.getKey(), sortedValues);
         }
