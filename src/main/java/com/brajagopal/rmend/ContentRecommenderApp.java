@@ -2,6 +2,7 @@ package com.brajagopal.rmend;
 
 import com.brajagopal.rmend.dao.GCloudDao;
 import com.brajagopal.rmend.dao.IRMendDao;
+import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.meta.DocumentMeta;
 import com.brajagopal.rmend.exception.DatastoreExceptionManager;
 import com.brajagopal.rmend.recommender.ContentRecommender;
@@ -18,7 +19,7 @@ import java.util.Arrays;
  */
 public class ContentRecommenderApp {
 
-    private static Logger logger = Logger.getLogger(ContentProcessor.class);
+    private static Logger logger = Logger.getLogger(ContentRecommenderApp.class);
     private static IRMendDao dao;
     private ContentRecommender contentRecommender;
 
@@ -36,11 +37,13 @@ public class ContentRecommenderApp {
     public static void main(String[] args) throws DatastoreException, GeneralSecurityException, IOException {
         ContentRecommenderApp app = new ContentRecommenderApp();
         //logger.info(dao.getDocument(2330894543l).getContentBeansByType());
-        TreeMultimap<String, DocumentMeta> entityValues = dao.getEntityMeta(Arrays.asList("ENTITIES:Person:joachim_johansson"));
-        logger.info(entityValues);
-        logger.info(dao.getDocument(2423267037l).getRelevantBeans());
+        TreeMultimap<BaseContent.ContentType, DocumentMeta> entityValues = dao.getEntityMeta(Arrays.asList("ENTITIES:Person:joachim_johansson"));
+        //logger.info(entityValues);
+        //logger.info(dao.getDocument(2423267037l).getRelevantBeans());
         try {
-            logger.info(app.getRecommender().getContentByTopic(ContentRecommender.makeTopicBean("human_interest"), ContentRecommender.ResultsType.RANDOM_10));
+            logger.info(app.getRecommender().getContentByTopic(ContentRecommender.makeTopicBean("human_interest"), ContentRecommender.ResultsType.TOP_3));
+            logger.info(dao.getDocument(2423265542l));
+            logger.info(app.getRecommender().getSimilarContent(2423265542l, ContentRecommender.ResultsType.TOP_5));
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
