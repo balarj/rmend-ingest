@@ -48,6 +48,8 @@ public class GCloudDao implements IRMendDao {
     static final String ENTITIY_CLASSIFIER_KIND = "entityId";
     static final String DOCUMENT_META_KIND = "docMeta";
 
+    static final int DEFAULT_RESULT_LIMIT = 20;
+
     private GCloudDao(boolean _isLocal) throws GeneralSecurityException, IOException {
         this(_isLocal, 1);
     }
@@ -101,12 +103,18 @@ public class GCloudDao implements IRMendDao {
 
     @Override
     public DocumentBean getDocument(Long _documentNumber) throws DatastoreException {
+        return getDocument(_documentNumber, DEFAULT_RESULT_LIMIT);
+    }
+
+    @Override
+    public DocumentBean getDocument(Long _documentNumber, Integer _limit) throws DatastoreException {
         Query.Builder query = Query.newBuilder();
         query.addKindBuilder().setName(BaseContent.ContentType.DOCUMENT_INFO.toString());
         query.setFilter(DatastoreHelper.makeFilter(
                 DOCUMENT_NUMBER_KIND,
                 PropertyFilter.Operator.EQUAL,
                 DatastoreHelper.makeValue(_documentNumber)));
+        query.setLimit(_limit);
         List<Entity> documents = runQuery(query.build());
         if (documents.size() == 0) {
             logger.warn("No Document found for DocumentNumber: " + _documentNumber);
@@ -160,6 +168,11 @@ public class GCloudDao implements IRMendDao {
 
     @Override
     public Collection<DocumentMeta> getEntityMeta(String _metaIdentifier) throws DatastoreException {
+        return getEntityMeta(_metaIdentifier, DEFAULT_RESULT_LIMIT);
+    }
+
+    @Override
+    public Collection<DocumentMeta> getEntityMeta(String _metaIdentifier, Integer _limit) throws DatastoreException {
         Collection<DocumentMeta> retVal = null;
         Query.Builder query = Query.newBuilder();
         query.addKindBuilder().setName(ContentDictionary.getContentType(_metaIdentifier).toString());
@@ -169,6 +182,7 @@ public class GCloudDao implements IRMendDao {
                 DatastoreHelper.makeValue(_metaIdentifier)
         ));
         query.addOrder(DatastoreHelper.makeOrder("score", PropertyOrder.Direction.DESCENDING));
+        query.setLimit(_limit);
         List<Entity> entityMetadata = runQuery(query.build());
         if (entityMetadata.size() == 0) {
             logger.warn("No Metadata found for EntityId: " + _metaIdentifier);
@@ -184,12 +198,18 @@ public class GCloudDao implements IRMendDao {
     }
 
     @Override
-    public TreeMultimap<String, DocumentMeta> getEntityMeta(Collection<String> _metaIdentifiers) throws DatastoreException {
-        TreeMultimap<String, DocumentMeta> retVal = TreeMultimap.create(ComparatorUtils.NATURAL_COMPARATOR, DocumentMeta.DOCUMENT_META_COMPARATOR);
+    public TreeMultimap<BaseContent.ContentType, DocumentMeta> getEntityMeta(Collection<String> _metaIdentifiers) throws DatastoreException {
+        return getEntityMeta(_metaIdentifiers, DEFAULT_RESULT_LIMIT);
+    }
+
+    @Override
+    public TreeMultimap<BaseContent.ContentType, DocumentMeta> getEntityMeta(Collection<String> _metaIdentifiers, Integer _limit) throws DatastoreException {
+        TreeMultimap<BaseContent.ContentType, DocumentMeta> retVal = TreeMultimap.create(ComparatorUtils.NATURAL_COMPARATOR, DocumentMeta.DOCUMENT_META_COMPARATOR);
         for (String metaIdentifier : _metaIdentifiers) {
             Collection<DocumentMeta> entityMeta = getEntityMeta(metaIdentifier);
             if (!CollectionUtils.isEmpty(entityMeta)) {
-                retVal.putAll(metaIdentifier, getEntityMeta(metaIdentifier));
+                BaseContent.ContentType key = ContentDictionary.getContentType(metaIdentifier);
+                retVal.putAll(key, getEntityMeta(metaIdentifier));
             }
         }
         return retVal;
@@ -205,6 +225,10 @@ public class GCloudDao implements IRMendDao {
     }
 
     private List<Entity> runQuery(Query query) throws DatastoreException {
+        return runQuery(query, 10);
+    }
+
+    private List<Entity> runQuery(Query query, int _resultLimit) throws DatastoreException {
         RunQueryRequest.Builder request = RunQueryRequest.newBuilder();
         request.setQuery(query);
         RunQueryResponse response = datastore.runQuery(request.build());
