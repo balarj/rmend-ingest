@@ -66,10 +66,11 @@ public class ContentProcessor {
         }
     }
 
-    public void processPath(File _file) {
+    public void processPath(File _file) throws InterruptedException {
         if (_file.isFile()) {
             if (_file.getName().endsWith(".json")) {
                 processFile(_file);
+                Thread.sleep(500l);
                 logger.info("----------------------------------------------------------------------");
             }
         } else if (_file.isDirectory()) {
@@ -106,11 +107,11 @@ public class ContentProcessor {
                     }
                 }
                 documentBean.setContentBeans(Collections.unmodifiableCollection(contentBeans));
-                dictionary.putData(documentBean);
                 logger.info(documentBean.getDocumentNumber());
+                logger.info(_file.getPath() + " : " + documentBean.getEntitySize());
+                dao.putDocument(documentBean);
+                dictionary.putData(documentBean);
             }
-            logger.info(_file.getPath() + " : " + documentBean.getEntitySize());
-            dao.putDocument(documentBean);
             fileCnt++;
 
         }
@@ -118,6 +119,8 @@ public class ContentProcessor {
             logger.error(e);
         } catch (DatastoreException e) {
             datastoreExceptionManager.trackException(e, "processFile()");
+        } catch (InterruptedException e) {
+            logger.error(e);
         }
     }
 
