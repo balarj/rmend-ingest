@@ -5,6 +5,7 @@ import com.brajagopal.rmend.dao.IRMendDao;
 import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.meta.DocumentMeta;
 import com.brajagopal.rmend.exception.DatastoreExceptionManager;
+import com.brajagopal.rmend.exception.DocumentNotFoundException;
 import com.brajagopal.rmend.recommender.ContentRecommender;
 import com.google.api.services.datastore.client.DatastoreException;
 import com.google.common.collect.TreeMultimap;
@@ -47,6 +48,8 @@ public class ContentRecommenderApp {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (DocumentNotFoundException e) {
             e.printStackTrace();
         }
     }
