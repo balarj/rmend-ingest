@@ -2,6 +2,7 @@ package com.brajagopal.rmend;
 
 import com.brajagopal.rmend.dao.GCloudDao;
 import com.brajagopal.rmend.dao.IRMendDao;
+import com.brajagopal.rmend.data.ResultsType;
 import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.meta.DocumentMeta;
 import com.brajagopal.rmend.exception.DatastoreExceptionManager;
@@ -42,9 +43,9 @@ public class ContentRecommenderApp {
         //logger.info(entityValues);
         //logger.info(dao.getDocument(2423267037l).getRelevantBeans());
         try {
-            logger.info(app.getRecommender().getContentByTopic(ContentRecommender.makeTopicBean("human_interest"), ContentRecommender.ResultsType.TOP_3));
+            logger.info(app.getRecommender().getContentByTopic(ContentRecommender.makeTopicBean("human_interest"), ResultsType.TOP_3));
             logger.info(dao.getDocument(2423265542l));
-            logger.info(app.getRecommender().getSimilarContent(2423265542l, ContentRecommender.ResultsType.TOP_5));
+            logger.info(app.getRecommender().getSimilarContent(2423265542l, ResultsType.TOP_5));
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {

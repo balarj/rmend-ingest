@@ -75,11 +75,11 @@ public class ContentRecommender {
                     return (documentMeta.getDocumentNumber() == _documentNumber);
                 }
             });
-            result.addAll(ResultsType.getResults(docMetas, _resultsType));
+            result.addAll(ResultsType.getResultsForCR(docMetas, _resultsType));
         }
 
         // Filter down the result
-        result = ResultsType.getResults(result, _resultsType);
+        result = ResultsType.getResultsForCR(result, _resultsType);
 
         Collection<DocumentBean> recommendedResults = new ArrayList<DocumentBean>();
         for (DocumentMeta docMeta : result) {
@@ -104,6 +104,6 @@ public class ContentRecommender {
 
     protected Collection<DocumentMeta> getDocumentMeta(String _metaIdentifier,  ResultsType resultsType) throws DatastoreException {
         Collection<DocumentMeta> entityValues = dao.getEntityMeta(_metaIdentifier);
-        return ResultsType.getResults(entityValues, resultsType);
+        return ResultsType.getResultsForCR(entityValues, resultsType);
     }
 }
